@@ -88,5 +88,3 @@
 (s/def :acct/hcl #(re-matches #"^#([0-9]|[A-F]|[a-f]){1,6}$" %))
 (s/def :acct/ecl #{:amb :blu :brn :gry :grn :hzl :oth})
 (s/def :acct/pid #(re-matches #"^[0-9]{9}$" %))
-
-(get-valid-count)
