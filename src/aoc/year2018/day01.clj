@@ -16,8 +16,7 @@
   "주어진 입력의 모든 숫자를 더하시오. 예) +10 -2 -5 +1 이 입력일 경우 4를 출력"
   (->> "resource/aoc/year2018/day01.txt"
        get-input
-       (apply +))
-  )
+       (apply +)))
 
 ; Part 2
 (comment

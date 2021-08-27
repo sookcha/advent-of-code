@@ -1,9 +1,6 @@
 (ns aoc.year2018.day05
   (:require [clojure.string :as str]))
 
-(def parsed-input
-  (slurp "resource/aoc/year2018/day05.txt"))
-
 (def regex-pattern
   (->> "abcdefghijklmnopqrstuvwxyz"
        (map
@@ -20,7 +17,7 @@
    공백으로 치환 후, 최종 문자열을 반환
    input: dabAcCaCBAcCcaDA
    output: abCBAc"
-  [text regex-pattern]
+  [regex-pattern text]
   (loop [result text]
     (if (re-find regex-pattern result)
       (recur (str/replace result regex-pattern ""))
@@ -32,7 +29,8 @@
 ;; abBA-> aA -> ‘’ 바로 옆에 붙어있어야만 서로 반응함. abAB -> abAB (반응 없음) 대문자-대문자, 소문자-소문자는 서로 반응하지 않음. 
 ;; aabAAB-> aabAAB (반응 없음) 예시 dabAcCaCBAcCcaDA => dabCBAcaDA 
 ;; 주어진 input 에서 최종으로 남는 문자열의 길이를 리턴하시오.
-(->> (get-fully-replaced-text-by-pattern parsed-input regex-pattern)
+(->> (slurp "resource/aoc/year2018/day05.txt")
+     (get-fully-replaced-text-by-pattern regex-pattern)
      count)
 
 ;; Part 2
@@ -43,8 +41,8 @@
 (->> (map char (range 65 91))
      (map #(str "(?i)" %))
      (map re-pattern)
-     (map #(str/replace parsed-input % ""))
-     (map #(get-fully-replaced-text-by-pattern % regex-pattern))
+     (map #(str/replace (slurp "resource/aoc/year2018/day05.txt") % ""))
+     (map #(get-fully-replaced-text-by-pattern regex-pattern %))
      (map count)
      sort
      first)

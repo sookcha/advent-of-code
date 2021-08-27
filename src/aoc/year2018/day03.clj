@@ -8,29 +8,21 @@
 
 (defn map-coordinates
   "인풋 파일 맵핑
-   input: 맵핑할 값
-   output: 맵"
+   input: (1 100 366 24 27)
+   output: {:id 1 :x 100 :y 366 :w 24 :h 27}"
   [[id x y w h]]
   {:id id :x x :y y :w w :h h})
 
-(def parsed-input
-  "인풋 파일 파싱 및 맵핑
-   input: 인풋 파일
-   output: 맵된 list"
-  (->> (slurp "resource/aoc/year2018/day03.txt")
+(defn parse-input
+  "인풋 파일을 읽은 후 map 형태로 맵핑합니다
+   input: 'path.txt'
+   output: ({:id 1, :x 100, :y 366, :w 24, :h 27} {:id 2, ...} ...)"
+  [path]
+  (->> (slurp path)
        str/split-lines
        (map #(drop 1 (str/split % #"#|@|,|:|x")))
        (map (fn [row] (map (fn [col] (Integer/parseInt (str/trim col))) row)))
        (map map-coordinates)))
-
-(defn move-to-list
-  "리스트면 리스트에 추가, 리스트가 아니면 새로운 리스트 생성
-   input: 리스트로 추정되는 값, 추가할 값
-   output: 리스트"
-  [list value]
-  (if (list? list)
-    (conj list (first value))
-    (list list value)))
 
 (defn complete-coordinates-from-input
   "인풋 파일의 x좌표와 width 이용해 전체 직사각형 완성
@@ -38,7 +30,7 @@
    output: 결과값"
   [input y result]
   (merge-with
-   move-to-list
+   (fn [list value] (conj list (first value)))
    result
    (loop [x (:x input) j 1 result {}]
      (if (> j (:w input))
@@ -47,19 +39,28 @@
 
 (defn iterate-till-coordinates-composed
   "인풋값의 y 좌표와 height 를 이용해 전체 직사각형 완성 
-   input: 이전 carry, input data 
-   output: 만들어진 직사각형"
-  [carry data]
-  (loop [y (:y data) i 1 result carry]
+   input: {[527 622] (1107), ...}, {:id 1, :x 100, :y 366, :w 24, :h 27} 
+   output: {[527 622] (1107), ...} [111 222] (1107)"
+  [acc data]
+  (loop [y (:y data) i 1 result acc]
     (if (> i (:h data))
       result
       (recur (inc y) (inc i) (complete-coordinates-from-input data y result)))))
 
+; Part 1
+(comment
+  (->>
+   (parse-input "resource/aoc/year2018/day03.txt")
+   (reduce iterate-till-coordinates-composed {})
+   vals
+   (filter #(> (count %) 1))
+   count))
+
 ; Part 2
 (defn get-overlapped-id
   "겹쳐진 id 가져오기
-   input: input
-   output: set"
+   input: ({:id 1, :x 100, :y 366, :w 24, :h 27} {:id 2, ...} ...)
+   output: #{893 920 558 453 ...}"
   [input]
   (->> input
        (reduce iterate-till-coordinates-composed {})
@@ -69,7 +70,7 @@
        set))
 
 (comment
-  (let [input parsed-input
+  (let [input (parse-input "resource/aoc/year2018/day03.txt")
         all-ids (->> input (map :id) set)]
     (->> input
          get-overlapped-id

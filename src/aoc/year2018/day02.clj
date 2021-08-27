@@ -1,7 +1,7 @@
 (ns aoc.year2018.day02
   (:require [clojure.string :as str]
             [clojure.data :as data]))
-(comment "Part1. 주어진 각각의 문자열에서, 같은 문자가 두번 혹은 세번씩 나타난다면 각각을 한번씩 센다. 두번 나타난 문자가 있는 문자열의 수 _ 세번 나타난 문자가 있는 문자열의 수를 반환하시오")
+(comment "Part1. 주어진 각각의 문자열에서, 같은 문자가 두번 혹은 세번씩 나타난다면 각각을 한번씩 센다. 두번 나타난 문자가 있는 문자열의 수 * 세번 나타난 문자가 있는 문자열의 수를 반환하시오")
 (comment "Part2. 여러개의 문자열 중, 같은 위치에 정확히 하나의 문자가 다른 문자열 쌍에서 같은 부분만을 리턴하시오.")
 
 ; Part 1
@@ -25,15 +25,15 @@
           {} val))
 
 (defn find-data
-  "desc: 특정 input 값을 갖고 있는 map 을 찾습니다
-   input: 찾고 싶은 카운트, map
-   output: 조건에 맞는 결과"
+  "desc: 특정 input 값을 갖고 있는 데이터를 찾습니다
+   input: 2, 'uqcipadzntnheslgvjjozmkfyr' 'uqcipadzwtnhexlzvxjobmkfkr'
+   output: ((2 2 2) (2 2 2) ...)"
   [repeated-count data]
   (let [values (map second data)]
     (filter #(= % repeated-count) values)))
 
 (defn accumulate-counted-words
-  "desc: 반복되는 횟수가 n개인 것의 갯수를 찾습니다
+  "desc: 글자 빈도 수 맵에서 복되는 횟수가 n개인 것의 갯수를 찾습니다
    input: ({a 1, c 1, d 1 ... }, 2
    output: 250"
   [word-counted repeated-count]
@@ -41,22 +41,24 @@
        (map #(find-data repeated-count %))
        count))
 
-(defn word-counted
-  "인풋 파일의 빈도수 카운팅
-  output: map"
+(defn get-word-counted
+  "인풋 파일 각 라인 별 글자 빈도수 카운팅
+   input: ['uqcipadzntnheslgvjjozmkfyr' 'uqcipadzwtnhexlzvxjobmkfkr' 'cqcipadpwtnheslgyxjobmkfyr' ...]
+   output: ({a 1, c 1, d 1, e 1, f 1, g 1, h 1, i 1, j 2, k 1, l 1, m 1, n 2, o 1, p 1 ...} {}...)"
   [input]
   (map word-count-map input))
 
 (comment
-  (let [word-counted (->> (get-input "resource/aoc/year2018/day02.txt") word-counted)]
+  (let [word-counted (->> (get-input "resource/aoc/year2018/day02.txt") get-word-counted)]
     (* (accumulate-counted-words word-counted 2) (accumulate-counted-words word-counted 3))))
 
 ; Part 2
 (defn calc-diff
-  "현재 결과와 다음 결과의 차이 계산
-   input: 현재 결과, 다음 결과
-   output: diff"
+  "next-item과 value 의 차이를 구합니다.
+   input: 'uqcipadzntnheslgvjjozmkfyr', 'uqcipadzntnheslgvjjozmkfyr'
+   output: (nil, (nil, 'a', ...) ...)"
   [next-item value]
+  (println next-item)
   (let [difference (data/diff (str/split value #"") (str/split next-item #""))
         [first-duplicated-chars second-duplicated-chars diff] difference]
     (if (and
@@ -66,12 +68,14 @@
       nil)))
 
 (defn map-with-rest-of-items
-  "현재값과 다음값으로 loop 돌리기
-   input: index, 현재값
-   output: map"
+  "desc: 인풋 파일의 각 줄의 목록에서 앞에서부터 index 까지 세어서 삭제시킵니다.
+   그리고 삭제시킨 값과 value의 차이를 계산합니다.
+   input: 1, ['uqcipadzntnheslgvjjozmkfyr' , ...]
+   output: ((nil), ('u') ...)"
   [index value]
   (->> (drop index (get-input "resource/aoc/year2018/day02.txt"))
        (map #(calc-diff % value))))
+
 
 (comment
   (->> (get-input "resource/aoc/year2018/day02.txt")

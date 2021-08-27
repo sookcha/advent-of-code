@@ -8,7 +8,11 @@
 (comment "Part2. 안전(safe) 한 지역은 근원지'들'로부터의 맨하탄거리(Manhattan distance, 격자를 상하좌우로만 움직일때의 최단 거리)의 '합'이 N 이하인 지역임.
           N이 10000 미만인 안전한 지역의 사이즈를 구하시오.")
 
-(defn get-input-point-coordinates [path]
+(defn get-input-point-coordinates 
+  "desc: path 에서 입력을 읽어서 [x y] 좌표 형태로 파싱합니다
+   input: 'path.txt'
+   output: ([311 74] [240 84] [54 241] ...)"
+  [path]
   (->> (slurp path)
        str/split-lines
        (map #(str/split % #","))
@@ -16,8 +20,8 @@
 
 (defn get-largest-x
   "desc: 주어진 좌표에서 가장 큰 x 값을 구합니다
-   input:
-   output: "
+   input: ([311 74] [240 84] [54 241] ...)
+   output: 311"
   [coordinates]
   (->> coordinates
        (map first)
@@ -25,8 +29,8 @@
 
 (defn get-largest-y
   "desc: 주어진 좌표에서 가장 큰 y 값을 구합니다
-   input: 
-   output: "
+   input: ([311 74] [240 84] [54 241] ...)
+   output: 241"
   [coordinates]
   (->> coordinates
        (map second)
@@ -63,7 +67,12 @@
                (assoc carry [x2 y2])))
         {})))
 
-(defn get-manhattan-distance-map [input-path coordinates]
+(defn get-manhattan-distance-map 
+  "desc: 인풋 경로와 근원지 좌표 목록을 이용해 각 좌표마다 가장 가까운 맨하탄 거리의 점 위치를 갖고 있는
+   2차원 좌표계를 만듭니다
+   input: 'day6.txt', ([311 74] [240 84] [54 241] ...)
+   output: {[42 78] [74 69] ...}"
+  [input-path coordinates]
   (->> (for [x (range (get-largest-x coordinates)) y (range (get-largest-y coordinates))] [x y])
        (reduce
         (fn
@@ -75,11 +84,11 @@
         {})))
 
 (defn get-infinite-coordinates
-  "desc: 무한한 것의 좌표를 가져옵니다
-   input:
-   output:
-   "
-  [maps coordinates]
+  "desc: 무한한 영역의 좌표를 가져옵니다
+   사각형의 네 모서리에 존재하는 좌표라면 무한한 것으로 보고 그 점의 좌표를 가져옵니다.
+   input: {[42 78] [74 69] ...}, ([311 74] [240 84] [54 241] ...)
+   output: ([42 278] [56 162] [317 53] [67 53] ...)"
+  [matrix coordinates]
   (let [largest-y (get-largest-y coordinates)
         largest-x (get-largest-x coordinates)
 
@@ -88,11 +97,11 @@
         left-to-right (for [right (range 0 largest-x)] [right 0])
         right-to-left (for [left (range (dec largest-x) -1 -1)] [left largest-y])
 
-        bottom-to-top-coords (reduce (fn [carry value] (conj carry (maps value))) #{} bottom-to-top)
-        top-to-bottom-coords (reduce (fn [carry value] (conj carry (maps value))) #{} top-to-bottom)
-        left-to-right-coords (reduce (fn [carry value] (conj carry (maps value))) #{} left-to-right)
-        right-to-left-coords (reduce (fn [carry value] (conj carry (maps value))) #{} right-to-left)]
-
+        bottom-to-top-coords (reduce (fn [carry value] (conj carry (matrix value))) #{} bottom-to-top)
+        top-to-bottom-coords (reduce (fn [carry value] (conj carry (matrix value))) #{} top-to-bottom)
+        left-to-right-coords (reduce (fn [carry value] (conj carry (matrix value))) #{} left-to-right)
+        right-to-left-coords (reduce (fn [carry value] (conj carry (matrix value))) #{} right-to-left)]
+    
     (remove nil? (set/union
                   bottom-to-top-coords
                   top-to-bottom-coords
@@ -113,11 +122,11 @@
 ;; Part 1
 (let [input-path "resource/aoc/year2018/day06.txt"
       coordinates (get-input-point-coordinates input-path)
-      maps (get-manhattan-distance-map input-path coordinates)]
+      matrix (get-manhattan-distance-map input-path coordinates)]
   (->> (set coordinates)
-       (data/diff (set (get-infinite-coordinates maps coordinates)))
+       (data/diff (set (get-infinite-coordinates matrix coordinates)))
        second
-       (map (fn [v] (count (find-by-value v maps))))
+       (map (fn [v] (count (find-by-value v matrix))))
        (apply max)))
 
 ;; Part 2
