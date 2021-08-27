@@ -58,7 +58,6 @@
    input: 'uqcipadzntnheslgvjjozmkfyr', 'uqcipadzntnheslgvjjozmkfyr'
    output: (nil, (nil, 'a', ...) ...)"
   [next-item value]
-  (println next-item)
   (let [difference (data/diff (str/split value #"") (str/split next-item #""))
         [first-duplicated-chars second-duplicated-chars diff] difference]
     (if (and
@@ -73,7 +72,8 @@
    input: 1, ['uqcipadzntnheslgvjjozmkfyr' , ...]
    output: ((nil), ('u') ...)"
   [index value]
-  (->> (drop index (get-input "resource/aoc/year2018/day02.txt"))
+  (->> (get-input "resource/aoc/year2018/day02.txt")
+       (drop index)
        (map #(calc-diff % value))))
 
 
