@@ -18,8 +18,8 @@
    'M' #{'D' 'G' 'J' 'P'},
    'S' #{'G' 'M'},
    ..."
-  [input-path]
-  (->> (slurp input-path)
+  [content]
+  (->> content
        (re-seq #"Step ([A-Z]) must be finished before step ([A-Z]) can begin.")
        (map #(rest %))
        (reduce
@@ -248,8 +248,8 @@
     last-status))
 
 (defn get-initial-state
-  [worker-count alphabet-fn]
-  (let [requirements-map (get-requirements-map "resource/aoc/year2018/day07.txt")
+  [worker-count alphabet-fn content]
+  (let [requirements-map (get-requirements-map content)
         works-with-no-parents (into '() (reverse (get-works-with-no-parents requirements-map)))
         todo-jobs (merge (into {} (map (fn [v] [v #{}]) works-with-no-parents)) requirements-map)]
     {:todo todo-jobs   
@@ -257,16 +257,17 @@
      :status :in-progress
      :get-time-per-alphabet alphabet-fn
      :time -1}))
-     
 
-; Part 1
-(->> (get-initial-state 1 (fn [_] 1))
-     get-solution
-     :jobs
-     (into '())
-     (str/join ""))
 
-; Part 2
-(->> (get-initial-state 5 (fn [alphabet] (- (int (.charAt alphabet 0)) 4)))
-     get-solution
-     :time)
+(comment
+  ; Part 1
+  (->> (get-initial-state 1 (fn [_] 1) (slurp "resource/aoc/year2018/day07.txt"))
+       get-solution
+       :jobs
+       (into '())
+       (str/join ""))
+
+  ; Part 2
+  (->> (get-initial-state 5 (fn [alphabet] (- (int (.charAt alphabet 0)) 4)) (slurp "resource/aoc/year2018/day07.txt"))
+       get-solution
+       :time))
