@@ -1,8 +1,4 @@
-{:source-paths ["src"]
- :dependencies [[binaryage/devtools "1.0.3"]
-                [nrepl "0.8.3"]
-                [reagent "1.1.0"]]
- :builds       {:app {:target     :browser
+{:builds       {:app {:target     :browser
                       :output-dir "public/js"
                       :asset-path "/js"
                       :modules    {:app {:entries [frontend.core]}}

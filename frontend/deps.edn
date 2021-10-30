@@ -1,0 +1,5 @@
+{:paths ["src"]
+ :deps {binaryage/devtools                    {:mvn/version "RELEASE"}
+        org.clojure/tools.nrepl               {:mvn/version "0.2.12"}
+        reagent/reagent                       {:mvn/version "1.1.0"}
+        aoc.year2018.day07/aoc.year2018.day07 {:local/root "../"}}}
