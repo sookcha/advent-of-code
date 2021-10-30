@@ -23,10 +23,10 @@
        (re-seq #"Step ([A-Z]) must be finished before step ([A-Z]) can begin.")
        (map #(rest %))
        (reduce
-        (fn [acc [first-id second-id]]
-          (if (contains? acc second-id)
-            (update acc second-id (fn [v] (conj v first-id)))
-            (assoc acc second-id  (sorted-set first-id)))) {})))
+         (fn [acc [first-id second-id]]
+           (if (contains? acc second-id)
+             (update acc second-id (fn [v] (conj v first-id)))
+             (assoc acc second-id (sorted-set first-id)))) {})))
 
 (defn get-works-with-no-parents
   "desc: 시작첨을 찾기 위해 부모가 없는 노드를 구합니다
@@ -42,8 +42,8 @@
   [requirements-map]
   (let [no-parents
         (->>
-         (data/diff (apply set/union (vals requirements-map)) (set (keys requirements-map)))
-         first)]
+          (data/diff (apply set/union (vals requirements-map)) (set (keys requirements-map)))
+          first)]
     (->> no-parents
          (map str)
          (into []))))
@@ -139,22 +139,22 @@
    3. 해당 잡을 어사인 했다면, pop 해서 다음 상태에서는 해당 잡이 처리되지 않도록 합니다. 잡이 어사인되지 않았다면 pop 하지 않습니다."
   [get-time-per-alphabet jobs workers]
   (iterate
-   (fn [state]
-     (if (empty? (:workers state))
-       (-> state
-           (assoc-in [:status] :done))
-       (let [job (peek (:jobs state))
-             worker (peek (:workers state))
-             worker-available? (and (= (:job worker) nil) (> (count (:jobs state)) 0))]
-         (-> state
-             (update :jobs (fn [jobs] (if worker-available? (pop jobs) jobs)))
-             (update :resulting-worker
-                     (fn [results]
-                       (if worker-available?
-                         (conj results {:time (get-time-per-alphabet job) :job job})
-                         (conj results worker))))
-             (update :workers pop)))))
-   {:status :in-progress :jobs jobs :workers workers :resulting-worker []}))
+    (fn [state]
+      (if (empty? (:workers state))
+        (-> state
+            (assoc-in [:status] :done))
+        (let [job (peek (:jobs state))
+              worker (peek (:workers state))
+              worker-available? (and (= (:job worker) nil) (> (count (:jobs state)) 0))]
+          (-> state
+              (update :jobs (fn [jobs] (if worker-available? (pop jobs) jobs)))
+              (update :resulting-worker
+                      (fn [results]
+                        (if worker-available?
+                          (conj results {:time (get-time-per-alphabet job) :job job})
+                          (conj results worker))))
+              (update :workers pop)))))
+    {:status :in-progress :jobs jobs :workers workers :resulting-worker []}))
 
 (defn get-next-worker-state
   "jobs에 항목이 존재할 때, 할 일이 없는 워커에 어사인 합니다.
@@ -167,13 +167,13 @@
             :status :in-progress, :time -1, :jobs [], :no-parent-cursor 0, :works-with-no-parents [G K T V]}"
   [state get-time-per-alphabet jobs]
   (update
-   state
-   :workers
-   (fn [workers]
-     (->> (iterate-workers get-time-per-alphabet jobs workers)
-          (drop-while #(not= (:status %) :done))
-          first
-          :resulting-worker))))
+    state
+    :workers
+    (fn [workers]
+      (->> (iterate-workers get-time-per-alphabet jobs workers)
+           (drop-while #(not= (:status %) :done))
+           first
+           :resulting-worker))))
 
 (defn assign-job-to-workers
   "desc: 처리해야 하는 작업들을 대기중인 worker 에게 할당합니다
@@ -252,11 +252,17 @@
   (let [requirements-map (get-requirements-map content)
         works-with-no-parents (into '() (reverse (get-works-with-no-parents requirements-map)))
         todo-jobs (merge (into {} (map (fn [v] [v #{}]) works-with-no-parents)) requirements-map)]
-    {:todo todo-jobs   
-     :workers (into [] (repeat worker-count {:time -1 :job nil}))
-     :status :in-progress
+    {:todo                  todo-jobs
+     :workers               (into [] (repeat worker-count {:time -1 :job nil}))
+     :status                :in-progress
      :get-time-per-alphabet alphabet-fn
-     :time -1}))
+     :time                  -1}))
+
+(defn get-nth-state
+  [init-state n]
+  (let [state (iterate get-next-state-part-2 init-state)]
+    (nth state n)))
+
 
 (comment
   ; Part 1
