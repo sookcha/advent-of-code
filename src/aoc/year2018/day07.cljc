@@ -258,7 +258,6 @@
      :get-time-per-alphabet alphabet-fn
      :time -1}))
 
-
 (comment
   ; Part 1
   (->> (get-initial-state 1 (fn [_] 1) (slurp "resource/aoc/year2018/day07.txt"))
