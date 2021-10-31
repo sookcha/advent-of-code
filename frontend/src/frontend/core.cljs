@@ -28,19 +28,17 @@
 (defn home-page []
   (let [state (nth (iterate day07/get-next-state-part-2 @global-state) @current-time)]
     [:div
-     [:h3 "Advent of Code 2018 문제 풀이"]
      [:h4 "Day 7"]
-     [:span "작업마다 의존관계가 있는 작업 목록이 있을 때 모든 작업이 완료됐을 때 작업을 완료한 순서대로 출력하라. 같은 디펜던시가 있는 작업의 경우 알파벳 순서로 먼저 처리한다."]
-     [:span " 총 5개의 워커가 있을 때 모든 작업이 완료된 시간을 구하라."]
+     [:p "작업마다 의존관계가 있는 작업 목록이 있을 때 모든 작업이 완료됐을 때 작업을 완료한 순서대로 출력하라. 같은 디펜던시가 있는 작업의 경우 알파벳 순서로 먼저 처리한다."]
+     [:p "총 5개의 워커가 있을 때 모든 작업이 완료된 시간을 구하라."]
      [:div
       [:h4 "작업목록"]
       [:textarea
        {:style {:width "100%" :height "50px"} :defaultValue @content}]
 
-      [:h4 "워커 갯수"]
+      [:div "워커 갯수"]
       [:input {:type :number :defaultValue @worker-count :on-change (fn [e] (swap! worker-count (fn [_] (js/parseInt (.. e -target -value)))))}]
       [:div [:button {:on-click start} "시작"]]
-
       [:div {:style {:display "flex" :width "100%"}} (for [worker (:workers state)] (worker-component worker))]
       [:p (str "작업을 완료하기까지 " @time-to-finish " 초가 걸립니다.")]
       [:h5 (str @current-time "초의 작업 상태")]
