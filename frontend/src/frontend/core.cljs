@@ -9,32 +9,42 @@
 (def current-time (r/atom 0))
 (def init-state (day07/get-initial-state 5 (fn [alphabet] (- (int (.charCodeAt alphabet 0)) 4)) content))
 
+(defn worker-component [{:keys [time job]}]
+  [:div {:style {:display "flex" :align-items "center" :justify-content "center" :width "100%" :height "100px" :border "1px solid white" :background-color (if (= -1 time) "black" "darkgreen") :transition "background-color 0.2s"
+                 :color "#FFF"}}
+        (if (= -1 time) "Idle" [:div [:div (str "작업 " job)] [:div (str "남은 시간 " time)]])])
+
 (defn home-page []
   (let [last-time (->> init-state
                        day07/get-solution
-                       :time)]
+                       :time)
+        current-state (nth (iterate day07/get-next-state-part-2 init-state) @current-time)]
     [:div
+     [:h2 "Advent of Code 2018 문제 풀이"]
+     [:h3 "Day 7"]
+     [:span "작업마다 의존관계가 있는 작업 목록이 있을 때 모든 작업이 완료됐을 때 작업을 완료한 순서대로 출력하라. 같은 디펜던시가 있는 작업의 경우 알파벳 순서로 먼저 처리한다."]
+     [:span " 총 5개의 워커가 있을 때 모든 작업이 완료된 시간을 구하라."]
      [:div
       [:h3 "작업목록"]
       [:textarea
-       {:style {:width "100%" :height "150px"} :defaultValue content}]
+       {:style {:width "100%" :height "50px"} :defaultValue content}]
 
       [:h4 "워커 갯수"]
       [:input {:type :number :defaultValue 5}]
-      [:p (str "작업을 완료하기까지 " last-time " 초가 걸립니다.")
-
-       [:h4 (str @current-time "초의 작업 상태")]
-       [:input.form-control
-        {:type  :range
-         :value @current-time
-         :min   0
-         :max   (+ 1 last-time)
-         :style {:width "100%"}
-         :on-change
-                (fn [e]
-                  (let [target (js/parseInt (.. e -target -value))]
-                    (swap! current-time (fn [_] target))))}]]]
-     [:p (str (nth (iterate day07/get-next-state-part-2 init-state) @current-time))]]))
+      [:div {:style {:display "flex" :width "100%"}} (for [worker (:workers current-state)] (worker-component worker))]
+      [:p (str "작업을 완료하기까지 " last-time " 초가 걸립니다.")]
+      [:h4 (str @current-time "초의 작업 상태")]
+      [:input.form-control
+       {:type  :range
+        :value @current-time
+        :min   0
+        :max   (+ 1 last-time)
+        :style {:width "100%"}
+        :on-change
+               (fn [e]
+                 (let [target (js/parseInt (.. e -target -value))]
+                   (swap! current-time (fn [_] target))))}]
+      [:p (str/join (:jobs current-state))]]]))
 
 
 (defn mount-root []

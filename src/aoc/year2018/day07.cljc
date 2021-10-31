@@ -176,7 +176,7 @@
            :resulting-worker))))
 
 (defn assign-job-to-workers
-  "desc: 처리해야 하는 작업들을 대기중인 worker 에게 할당합니다
+  "desc: 처리해야 하는 작업들을 대기중인 worker 에게 할당합니다
    1. 현재 워커가 갖고 있는 작업 이름을 `current-works` 라고 합니다.
    2. get-next-works 함수에서 불러온 다음 할일 목록에서, 현재 워커가 갖고 있는 일을 제외시킨 `jobs` 벡터를 선언합니다.
    3. get-next-worker-state 함수를 통해 새로운 작업을 워커에 어사인 합니다.
@@ -257,12 +257,6 @@
      :status                :in-progress
      :get-time-per-alphabet alphabet-fn
      :time                  -1}))
-
-(defn get-nth-state
-  [init-state n]
-  (let [state (iterate get-next-state-part-2 init-state)]
-    (nth state n)))
-
 
 (comment
   ; Part 1
